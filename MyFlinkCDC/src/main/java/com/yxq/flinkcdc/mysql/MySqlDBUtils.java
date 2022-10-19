@@ -18,6 +18,9 @@ public class MySqlDBUtils {
     private static final String password = "root";
 
     public static void executeSql(String sql) throws Exception {
+        if (StringUtils.isNotEmpty(sql)) {
+            return;
+        }
         if (conn == null) {
             init();
         }
