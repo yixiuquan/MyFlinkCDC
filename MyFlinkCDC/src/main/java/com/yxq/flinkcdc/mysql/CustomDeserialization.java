@@ -2,6 +2,7 @@ package com.yxq.flinkcdc.mysql;
 
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import io.debezium.data.Envelope;
+import lombok.Getter;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.util.Collector;
@@ -13,7 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.List;
 
 /**
- * @author yxq
+ * @author Mi
  * @date 2022-10-18
  */
 public class CustomDeserialization implements DebeziumDeserializationSchema<String> {
@@ -24,12 +25,13 @@ public class CustomDeserialization implements DebeziumDeserializationSchema<Stri
      * "tablename":"",
      *  befor:json
      *  after:json
-     *  op
+     *  op:""
      *  }
      */
     @Override
     public void deserialize(SourceRecord sourceRecord, Collector<String> collector) throws Exception {
         JSONObject result = new JSONObject();
+        //
         String topic = sourceRecord.topic();
         String[] fields = topic.split("\\.");
         result.put("db",fields[1]);
@@ -62,7 +64,9 @@ public class CustomDeserialization implements DebeziumDeserializationSchema<Stri
         }
         result.put("after", afterJson);
 
+        // 操作类型过滤,只处理增删改
         Envelope.Operation operation = Envelope.operationFor(sourceRecord);
+        //UPDATE DELETE CREATE
         result.put("op", operation);
 
         collector.collect(result.toJSONString());
@@ -72,5 +76,30 @@ public class CustomDeserialization implements DebeziumDeserializationSchema<Stri
     @Override
     public TypeInformation<String> getProducedType() {
         return BasicTypeInfo.STRING_TYPE_INFO;
+    }
+
+    /**
+     * @desc 变更类型枚举
+     **/
+    public enum EventTypeEnum {
+        /**
+         * 增
+         */
+        CREATE(1),
+        /**
+         * 改
+         */
+        UPDATE(2),
+        /**
+         * 删
+         */
+        DELETE(3),
+        ;
+        @Getter
+        private final int type;
+
+        EventTypeEnum(int type) {
+            this.type = type;
+        }
     }
 }
