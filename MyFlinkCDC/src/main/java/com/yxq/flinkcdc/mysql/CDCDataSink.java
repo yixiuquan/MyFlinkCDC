@@ -31,6 +31,7 @@ public class CDCDataSink extends RichSinkFunction {
         JSONObject obj = JSONObject.parseObject(v);
         JSONObject afterObj = obj.getJSONObject("after");
         String tableName = obj.getString("tableName");
+        String db = obj.getString("db");
         String columns = "";
         String vals = "";
         String updates = "";
@@ -66,7 +67,7 @@ public class CDCDataSink extends RichSinkFunction {
         if (updates.endsWith(",")) {
             updates = updates.substring(0, updates.length() - 1);
         }
-        String sql = " INSERT INTO `testdb`.`" + tableName + "` (" + columns + ") VALUES " + "(" + vals + ")" +
+        String sql = " INSERT INTO `" + db + "`.`" + tableName + "` (" + columns + ") VALUES " + "(" + vals + ")" +
                 " ON DUPLICATE KEY UPDATE " + updates;
         System.out.println(">>>>>>>" + sql);
         //  保存数据库
