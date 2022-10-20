@@ -14,9 +14,6 @@ import java.util.Map;
  * @date 2022-10-18
  */
 public class CDCDataSink extends RichSinkFunction {
-    private final String yyyyMMddHHmmss = "yyyy-MM-dd HH:mm:ss";
-    private final String yyyyMMddTHHmmss = "yyyy-MM-dd'T'HH:mm:ss";
-    private final String yyyyMMddTHHmmssZ = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     // 初始化方法
     @Override
@@ -44,14 +41,7 @@ public class CDCDataSink extends RichSinkFunction {
                 String key = entry.getKey();
                 Object valObj = entry.getValue();
                 if ("create_time".equals(key)) {
-                    if (valObj instanceof String) {
-                        String val = valObj.toString();
-                        if (val.contains("T") && val.endsWith("Z")) {
-                            valObj = val.replace("T", " ").replace("Z", "");
-                        }
-                    } else {
-                        valObj = DateFormatUtils.format(new Date((Long) valObj), yyyyMMddHHmmss);
-                    }
+                    valObj = DateUtils.dateFormat2.format(new Date());
                 }
                 columns += "`" + key + "`,";
                 if (valObj instanceof String) {
@@ -83,9 +73,9 @@ public class CDCDataSink extends RichSinkFunction {
         if (StringUtils.isNotEmpty(sql)) {
             System.out.println(">>>>>>>" + sql);
             //  保存数据库
-            MySqlDBUtils.executeSql(sql);
+            int upSert = MySqlDBUtils.executeSql(sql);
+            System.out.println(">>>>>>>>>>>>插入|更新  ->>>" + (upSert > 0 ? "成功" : "失败") + "<<<");
         }
-
     }
 
     @Override
