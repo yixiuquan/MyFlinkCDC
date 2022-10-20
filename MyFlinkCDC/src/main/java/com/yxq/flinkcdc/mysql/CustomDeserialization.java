@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.List;
 
 /**
- * @author Mi
+ * @author yxq
  * @date 2022-10-18
  */
 public class CustomDeserialization implements DebeziumDeserializationSchema<String> {
@@ -31,7 +31,6 @@ public class CustomDeserialization implements DebeziumDeserializationSchema<Stri
     @Override
     public void deserialize(SourceRecord sourceRecord, Collector<String> collector) throws Exception {
         JSONObject result = new JSONObject();
-        //
         String topic = sourceRecord.topic();
         String[] fields = topic.split("\\.");
         result.put("db",fields[1]);
@@ -76,30 +75,5 @@ public class CustomDeserialization implements DebeziumDeserializationSchema<Stri
     @Override
     public TypeInformation<String> getProducedType() {
         return BasicTypeInfo.STRING_TYPE_INFO;
-    }
-
-    /**
-     * @desc 变更类型枚举
-     **/
-    public enum EventTypeEnum {
-        /**
-         * 增
-         */
-        CREATE(1),
-        /**
-         * 改
-         */
-        UPDATE(2),
-        /**
-         * 删
-         */
-        DELETE(3),
-        ;
-        @Getter
-        private final int type;
-
-        EventTypeEnum(int type) {
-            this.type = type;
-        }
     }
 }
