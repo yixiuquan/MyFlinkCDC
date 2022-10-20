@@ -17,14 +17,14 @@ public class MySqlDBUtils {
     private static final String username = "root";
     private static final String password = "root";
 
-    public static void executeSql(String sql) throws Exception {
-        if (StringUtils.isNotEmpty(sql)) {
-            return;
+    public static int executeSql(String sql) throws Exception {
+        if (StringUtils.isEmpty(sql)) {
+            return 0;
         }
         if (conn == null) {
             init();
         }
-        ps.executeUpdate(sql);
+        return ps.executeUpdate(sql);
     }
 
     public static void init() {
