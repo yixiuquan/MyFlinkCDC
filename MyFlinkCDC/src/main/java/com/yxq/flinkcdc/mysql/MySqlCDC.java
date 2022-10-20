@@ -41,15 +41,19 @@ public class MySqlCDC {
         //latest-offset: Never to perform snapshot on the monitored database tables upon first startup, just read from the end of the binlog which means only have the changes since theconnector was started.
         //timestamp: Never to perform snapshot on the monitored database tables upon first startup, and directly read binlog from the specified timestamp. The consumer will traverse the binlog from the beginning and ignore change events whose timestamp is smaller than the specified timestamp.
         //specific-offset: Never to perform snapshot on the monitored database tables upon first startup, and directly read binlog from the specified offset.
-        Properties prop = new Properties();
-        prop.setProperty("useSSL","false");
+       Properties prop = new Properties();
+        prop.setProperty("useSSL", "false");
+        prop.setProperty("characterEncoding", "UTF-8");
+        prop.setProperty("useUnicode", "true");
+        prop.setProperty("tinyInt1isBit", "false");
+        prop.setProperty("allowPublicKeyRetrieval", "true");
         //通过FlinkCDC构建SourceFunction
         MySqlSource<String> mySqlSource = MySqlSource.<String>builder()
                 .hostname("localhost")
                 .port(3306)
                 .username("root")
                 .password("root")
-                .serverTimeZone("UTC")
+                .serverTimeZone("Asia/Shanghai")
                 .jdbcProperties(prop)
                 .databaseList("testdb")
                 .tableList("testdb.test_tab1,testdb.test_tab2")
